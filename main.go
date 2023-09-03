@@ -23,5 +23,4 @@ func main() {
 	}
 
 	cpu.Print()
-	return
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"unsafe"
 )
 
 const MaxMemory = 1024 * 64
@@ -57,16 +56,17 @@ func (m *Mem) ReadByte(address Byte, cycle *uint32) (*Byte, error) {
 	return &x, nil
 }
 
-func isLittleEndian() bool {
-	buf := [2]byte{}
-	*(*uint16)(unsafe.Pointer(&buf[0])) = uint16(0xABCD)
+// TODO: Use me when needed
+// func isLittleEndian() bool {
+// 	buf := [2]byte{}
+// 	*(*uint16)(unsafe.Pointer(&buf[0])) = uint16(0xABCD)
 
-	switch buf {
-	case [2]byte{0xCD, 0xAB}:
-		return true
-	case [2]byte{0xAB, 0xCD}:
-		return false
-	default:
-		panic("Could not determine native endianness.")
-	}
-}
+// 	switch buf {
+// 	case [2]byte{0xCD, 0xAB}:
+// 		return true
+// 	case [2]byte{0xAB, 0xCD}:
+// 		return false
+// 	default:
+// 		panic("Could not determine native endianness.")
+// 	}
+// }
