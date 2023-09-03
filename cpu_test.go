@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"testing"
 )
 
@@ -65,7 +64,7 @@ func TestCPUExecuteInvalidOpsCode(t *testing.T) {
 
 	err := cpu.Execute(1, mem)
 
-	if errors.Is(err, errors.New("instruction not handled: a8 pc:")) {
+	if err.Error() != "instruction not handled: a8 pc: fffc cycle: 1" {
 		t.Fatalf("expected instruction not handled error: %s", err)
 		t.Fail()
 	}
