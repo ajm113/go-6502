@@ -38,23 +38,23 @@ func (m *Mem) NextWord(pc *Byte, cycle *uint32) Word {
 	return Word(x)
 }
 
-func (m *Mem) WriteWord(data Word, address *Byte, cycle *uint32) {
-	m.Data[*address] = Byte(data) & 0xFF
+func (m *Mem) WriteWord(data Byte, address *Byte, cycle *uint32) {
+	m.Data[*address] = data & 0xFF
 	*address++
-	m.Data[*address+1] = (Byte(data) >> 8)
+	m.Data[*address+1] = (data >> 8)
 	*address++
 	*cycle -= 2
 }
 
-func (m *Mem) ReadByte(address Byte, cycle *uint32) (Byte, error) {
+func (m *Mem) ReadByte(address Byte, cycle *uint32) (*Byte, error) {
 	if address < 0 || address > MaxMemory {
-		return 0, errors.New("out of range")
+		return nil, errors.New("out of range")
 	}
 
 	x := m.Data[address]
 	*cycle--
 
-	return x, nil
+	return &x, nil
 }
 
 func isLittleEndian() bool {

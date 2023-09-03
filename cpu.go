@@ -67,7 +67,6 @@ func (c *CPU) ldaSetStatus() {
 }
 
 func (c *CPU) Execute(cycles uint32, mem *Mem) error {
-	var err error
 	for cycles > 0 {
 		inst := mem.NextByte(&c.PC, &cycles)
 
@@ -79,11 +78,11 @@ func (c *CPU) Execute(cycles uint32, mem *Mem) error {
 		case Ins_LDA_ZP:
 			zeroPageAddress := mem.NextByte(&c.PC, &cycles)
 
-			c.A, err = mem.ReadByte(zeroPageAddress, &cycles)
-
+			b, err := mem.ReadByte(zeroPageAddress, &cycles)
 			if err != nil {
 				return err
 			}
+			c.A = *b
 
 			c.ldaSetStatus()
 		case Ins_LDA_ZPX:
@@ -91,15 +90,16 @@ func (c *CPU) Execute(cycles uint32, mem *Mem) error {
 
 			zeroPageAddress += c.X
 			cycles--
-			c.A, err = mem.ReadByte(zeroPageAddress, &cycles)
+			b, err := mem.ReadByte(zeroPageAddress, &cycles)
 			if err != nil {
 				return err
 			}
+			c.A = *b
 
 			c.ldaSetStatus()
 		case Ins_LDA_JSR:
 			jumpAddr := mem.NextWord(&c.PC, &cycles)
-			mem.WriteWord(Word(c.PC-1), &c.SP, &cycles)
+			mem.WriteWord(c.PC-1, &c.SP, &cycles)
 			c.SP++
 			c.PC = Byte(jumpAddr)
 			cycles -= 2
@@ -111,5 +111,5 @@ func (c *CPU) Execute(cycles uint32, mem *Mem) error {
 		}
 	}
 
-	return err
+	return nil
 }
