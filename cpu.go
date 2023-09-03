@@ -71,15 +71,15 @@ func (c *CPU) Execute(cycles uint32, mem *Mem) {
 			c.A = value
 			c.ldaSetStatus()
 		case Ins_LDA_ZP:
-			zeroPageAddress := Word(mem.NextByte(&c.PC, &cycles))
+			zeroPageAddress := mem.NextByte(&c.PC, &cycles)
 
 			c.A = mem.ReadByte(zeroPageAddress, &cycles)
 
 			c.ldaSetStatus()
 		case Ins_LDA_ZPX:
-			zeroPageAddress := Word(mem.NextByte(&c.PC, &cycles))
+			zeroPageAddress := mem.NextByte(&c.PC, &cycles)
 
-			zeroPageAddress += Word(c.X)
+			zeroPageAddress += c.X
 			cycles--
 			c.A = mem.ReadByte(zeroPageAddress, &cycles)
 

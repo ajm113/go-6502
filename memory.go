@@ -43,7 +43,7 @@ func (m *Mem) WriteWord(data Word, address *Byte, cycle *uint32) {
 	*cycle -= 2
 }
 
-func (m *Mem) ReadByte(address Word, cycle *uint32) Byte {
+func (m *Mem) ReadByte(address Byte, cycle *uint32) Byte {
 	x := m.Data[address]
 	*cycle--
 
