@@ -3,11 +3,12 @@ package main
 import "fmt"
 
 type (
-	Byte uint8
+	Byte rune
 	Word uint16
 
 	CPU struct {
-		PC, SP Word // program counter, stack pointer
+		PC Byte
+		SP Byte // program counter, stack pointer
 
 		A, X, Y Byte // registers
 
@@ -84,12 +85,16 @@ func (c *CPU) Execute(cycles uint32, mem *Mem) {
 
 			c.ldaSetStatus()
 		case Ins_LDA_JSR:
-
+			jumpAddr := mem.NextWord(&c.PC, &cycles)
+			mem.WriteWord(Word(c.PC-1), &c.SP, &cycles)
+			c.SP++
+			c.PC = Byte(jumpAddr)
+			cycles -= 2
 		default:
 			// revert the program counter and cycle # for debugging purposes and return em back after continuing..
 			c.PC--
 			cycles++
-			fmt.Printf("instruction not handled: %x pc: %x cycle: %x\n", inst, c.PC, cycles)
+			fmt.Printf("!!! instruction not handled: %x pc: %x cycle: %x !!!\n", inst, c.PC, cycles)
 			cycles = 0
 		}
 
