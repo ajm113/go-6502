@@ -22,6 +22,11 @@ type (
 	}
 )
 
+const (
+	CPUInitProgramCounter Byte = 0xFFFC
+	CPUInitStackPointer   Byte = 0x0100
+)
+
 func (c *CPU) Reset(mem *Mem) {
 	// reset our flags
 	c.C = 0
@@ -33,15 +38,15 @@ func (c *CPU) Reset(mem *Mem) {
 	c.N = 0
 
 	// reset program counter and stack pointer
-	c.PC = 0xFFFC
-	c.SP = 0x0100
+	c.PC = CPUInitProgramCounter
+	c.SP = CPUInitStackPointer
 
 	// reset registers
 	c.A = 0
 	c.X = 0
 	c.Y = 0
 
-	mem.Initalize()
+	mem.Initialize()
 }
 
 func (c *CPU) Print() {
@@ -61,7 +66,8 @@ func (c *CPU) ldaSetStatus() {
 	}
 }
 
-func (c *CPU) Execute(cycles uint32, mem *Mem) {
+func (c *CPU) Execute(cycles uint32, mem *Mem) error {
+	var err error
 	for cycles > 0 {
 		inst := mem.NextByte(&c.PC, &cycles)
 
@@ -73,7 +79,11 @@ func (c *CPU) Execute(cycles uint32, mem *Mem) {
 		case Ins_LDA_ZP:
 			zeroPageAddress := mem.NextByte(&c.PC, &cycles)
 
-			c.A = mem.ReadByte(zeroPageAddress, &cycles)
+			c.A, err = mem.ReadByte(zeroPageAddress, &cycles)
+
+			if err != nil {
+				return err
+			}
 
 			c.ldaSetStatus()
 		case Ins_LDA_ZPX:
@@ -81,7 +91,10 @@ func (c *CPU) Execute(cycles uint32, mem *Mem) {
 
 			zeroPageAddress += c.X
 			cycles--
-			c.A = mem.ReadByte(zeroPageAddress, &cycles)
+			c.A, err = mem.ReadByte(zeroPageAddress, &cycles)
+			if err != nil {
+				return err
+			}
 
 			c.ldaSetStatus()
 		case Ins_LDA_JSR:
@@ -94,9 +107,9 @@ func (c *CPU) Execute(cycles uint32, mem *Mem) {
 			// revert the program counter and cycle # for debugging purposes and return em back after continuing..
 			c.PC--
 			cycles++
-			fmt.Printf("!!! instruction not handled: %x pc: %x cycle: %x !!!\n", inst, c.PC, cycles)
-			cycles = 0
+			return fmt.Errorf("instruction not handled: %x pc: %x cycle: %x", inst, c.PC, cycles)
 		}
-
 	}
+
+	return err
 }

@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 func main() {
 	cpu := &CPU{}
 	mem := &Mem{}
@@ -12,7 +14,14 @@ func main() {
 	mem.Data[0x42] = Ins_LDA_IM
 	mem.Data[0x43] = 0x84
 
-	cpu.Execute(9, mem)
+	err := cpu.Execute(9, mem)
+
+	if err == nil {
+		fmt.Println("execution completed successfully")
+	} else {
+		fmt.Printf("!!! unexpected exception occurred: %s !!!", err)
+	}
+
 	cpu.Print()
 	return
 }

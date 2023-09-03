@@ -1,6 +1,9 @@
 package main
 
-import "unsafe"
+import (
+	"errors"
+	"unsafe"
+)
 
 const MaxMemory = 1024 * 64
 
@@ -10,7 +13,7 @@ type (
 	}
 )
 
-func (m *Mem) Initalize() {
+func (m *Mem) Initialize() {
 	for i := 0; i < MaxMemory; i++ {
 		m.Data[i] = 0
 	}
@@ -43,11 +46,15 @@ func (m *Mem) WriteWord(data Word, address *Byte, cycle *uint32) {
 	*cycle -= 2
 }
 
-func (m *Mem) ReadByte(address Byte, cycle *uint32) Byte {
+func (m *Mem) ReadByte(address Byte, cycle *uint32) (Byte, error) {
+	if address < 0 || address > MaxMemory {
+		return 0, errors.New("out of range")
+	}
+
 	x := m.Data[address]
 	*cycle--
 
-	return x
+	return x, nil
 }
 
 func isLittleEndian() bool {
