@@ -68,4 +68,9 @@ func TestCPUExecuteInvalidOpsCode(t *testing.T) {
 		t.Fatalf("expected instruction not handled error: %s", err)
 		t.Fail()
 	}
+
+	if cpu.Cycles != 0 {
+		t.Fatalf("unexpected cycles ran expected 0, but got: %d", cpu.Cycles)
+		t.Fail()
+	}
 }

@@ -19,6 +19,8 @@ type (
 		B, // break command
 		V, // overflow flag
 		N Byte // negative flag
+
+		Cycles uint32 // keeps track of cycles ran
 	}
 )
 
@@ -46,12 +48,15 @@ func (c *CPU) Reset(mem *Mem) {
 	c.X = 0
 	c.Y = 0
 
+	// reset emulator specific stats.
+	c.Cycles = 0
+
 	mem.Initialize()
 }
 
 func (c *CPU) Print() {
 	fmt.Println("======================================================")
-	fmt.Printf("cpu status: pc: %x sp: %x\n", c.PC, c.SP)
+	fmt.Printf("cpu status: pc: %x sp: %x cycles: %d\n", c.PC, c.SP, c.Cycles)
 	fmt.Printf("cpu flags: c: %x z: %x i: %x d: %x b: %x v: %x n: %x\n", c.C, c.Z, c.I, c.D, c.B, c.V, c.N)
 	fmt.Printf("cpu registers: a: %x x: %x y: %x\n", c.A, c.X, c.Y)
 	fmt.Println("======================================================")
@@ -67,6 +72,12 @@ func (c *CPU) ldaSetStatus() {
 }
 
 func (c *CPU) Execute(cycles uint32, mem *Mem) error {
+	startingCycles := cycles
+
+	defer func() {
+		c.Cycles = startingCycles - cycles
+	}()
+
 	for cycles > 0 {
 		inst := mem.NextByte(&c.PC, &cycles)
 
